@@ -67,7 +67,7 @@ class mainWin(QMainWindow):
         self.sessionRunning = False
         self.listenerID = ""
         self.currentTrial = 1
-        self.intervals_db = pd.read_csv("intervals_database.csv", sep=";")
+        self.intervals_db = pd.read_csv(os.path.abspath(os.path.dirname(__file__)) + "/resources/intervals_database.csv", sep=";")
         # self.rootNotes = np.array([110, 130.81, 185])
         # self.intervalsCents = np.array([100,
         #                                500,
