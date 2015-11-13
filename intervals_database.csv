@@ -1,0 +1,14 @@
+name;cents
+unison; 0
+minor_second; 100
+major_second; 200
+minor_third; 300
+major_third; 400
+perfect_fourth; 500
+tritone; 600
+perfect_fifth; 700
+minor_sixth; 800
+major_sixth; 900
+minor_seventh; 1000
+major_seventh; 1100
+octave; 1200
