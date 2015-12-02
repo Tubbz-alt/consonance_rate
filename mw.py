@@ -118,10 +118,13 @@ class mainWin(QMainWindow):
         self.noise1LowFreq = 0
         self.noise1HighFreq = 2000
         self.noise1Type = "Pink"
+        self.noise2Type = "Pink"
         self.noise2SL = -200#50
         self.noise2LowFreq = 4000
         self.noise2HighFreq = 8000
-        self.noise2Type = "Pink"
+        self.noise1RefHz = 1000
+        self.noise2RefHz = 1000
+        self.preTrialNoiseRefHz = 1000
         self.preTrialNoiseLowFreq = 0
         self.preTrialNoiseHighFreq = 8000
         self.preTrialNoiseDur = 2#980
@@ -165,7 +168,7 @@ class mainWin(QMainWindow):
         borderWidth = 4
         self.main_sizer.addItem(QSpacerItem(20, 60, QSizePolicy.Fixed))
 
-        self.overallRatingSliderValue = QLabel(self.tr(""), self)
+        self.overallRatingSliderValue = QLabel(self.tr("0"), self)
         self.main_sizer.addWidget(self.overallRatingSliderValue)
         self.overallRatingSliderValue.setStyleSheet('font-size: 22pt; font-weight: normal')
         self.overallRatingSliderValue.setAlignment(Qt.AlignCenter)
@@ -222,6 +225,8 @@ class mainWin(QMainWindow):
         if self.currentTrial > 1:
             self.storeRating()
             self.gauge.setValue((self.currentTrial-1)/self.nTrials*100)
+            #self.sliderChanged(0)
+            self.sliderLabelReset()
             self.statusButton.setText(self.tr("Running"))
             QApplication.processEvents()
         if self.currentTrial <= self.nTrials :
@@ -245,7 +250,7 @@ class mainWin(QMainWindow):
                                        ramp=self.preTrialNoiseRamps, channel=self.preTrialNoiseChannel,
                                        fs=self.fs, maxLevel=self.maxLevel)
         if self.preTrialNoiseType == "Pink":
-            preTrialNoise = makePink(preTrialNoise, self.fs)
+            preTrialNoise = makePinkRef(preTrialNoise, self.fs, self.preTrialNoiseRefHz)
 
         preTrialNoise = fir2Filter2(preTrialNoise, filterType="bandpass", nTaps=256, cutoffs=(self.preTrialNoiseLowFreq, self.preTrialNoiseHighFreq), transitionWidth=0.2, fs=self.fs)
             
@@ -263,7 +268,7 @@ class mainWin(QMainWindow):
                                        ramp=self.diadRamps*6, channel=self.noiseChannel,
                                        fs=self.fs, maxLevel=self.maxLevel)
         if self.noise1Type == "Pink":
-            noise1 = makePink(noise1, self.fs)
+            noise1 = makePinkRef(noise1, self.fs, self.noise1RefHz)
         noise1 = fir2Filter2(noise1, filterType="bandpass", nTaps=256,
                              cutoffs=(self.noise1LowFreq, self.noise1HighFreq),
                              transitionWidth=0.2, fs=self.fs)
@@ -275,7 +280,7 @@ class mainWin(QMainWindow):
                                 ramp=self.diadRamps*6, channel=self.noiseChannel,
                                 fs=self.fs, maxLevel=self.maxLevel)
         if self.noise2Type == "Pink":
-            noise2 = makePink(noise2, self.fs)
+            noise2 = makePinkRef(noise2, self.fs, self.noise2RefHz)
         noise2 = fir2Filter2(noise2, filterType="bandpass", nTaps=256,
                              cutoffs=(self.noise2LowFreq, self.noise2HighFreq),
                              transitionWidth=0.2, fs=self.fs)
@@ -312,12 +317,16 @@ class mainWin(QMainWindow):
         self.thisPageFile.flush()
         self.overallRatingSlider.setValue(0)
         self.overallRatingSliderValue.setText("")
+        
 
 
     def sliderChanged(self, value):
         self.overallRatingSliderValue.setText(str(round(value,1)))
         if self.currentTrial > 1 and self.statusButton.text() != self.tr("Finished"):
             self.statusButton.setText(self.tr("Next"))
+
+    def sliderLabelReset(self):
+        self.overallRatingSliderValue.setText("0")
 
     def onClickSetupListenerButton(self):
         text, ok = QInputDialog.getText(self, "" , "Listener ID: ")
