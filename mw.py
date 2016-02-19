@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright (C) 2015 Samuele Carcagno <sam.carcagno@gmail.com>
+#   Copyright (C) 2015-2016 Samuele Carcagno <sam.carcagno@gmail.com>
 #   This file is part of consonance_rate
 
 #    consonance_rate is free software: you can redistribute it and/or modify
@@ -75,7 +75,15 @@ class mainWin(QMainWindow):
         #                                700,
         #                                800,
         #                                1100])
-        self.rootNotes = np.array([110, 185])
+        #self.rootNotes = np.array([110, 185])
+        self.rootNotes = np.array([146.83,
+                                   155.56,
+                                   164.81,
+                                   174.61,
+                                   185,
+                                   196,
+                                   207.65,
+                                   220])
         self.intervalsCents = np.array([200,
                                       
                                       
@@ -85,7 +93,7 @@ class mainWin(QMainWindow):
         self.nPracticeTrialsXStim = 1
         self.nTrialsXStim = 2
         self.nTrials = len(self.rootNotes)*len(self.intervalsCents)*(self.nTrialsXStim+self.nPracticeTrialsXStim)
-        
+        print(self.nTrials)
         practiceTrials = []
         mainTrials = []
         for rootNote in self.rootNotes:
@@ -105,9 +113,9 @@ class mainWin(QMainWindow):
         
         self.diadDur = 1980
         self.diadRamps = 10
-        self.diadTotLev = 80
+        self.diadTotLev = 40
         self.diadFilterType = "lowpass"
-        self.diadFilterCutoffs = (2500,)
+        self.diadFilterCutoffs = (4000,)
         self.diadLowHarm = 1
         self.diadHighHarm = 50
         self.diadNote1Chan = "Both"
@@ -119,20 +127,20 @@ class mainWin(QMainWindow):
         self.noise1HighFreq = 2000
         self.noise1Type = "Pink"
         self.noise2Type = "Pink"
-        self.noise2SL = -200#50
+        self.noise2SL = 5#45
         self.noise2LowFreq = 4000
         self.noise2HighFreq = 8000
-        self.noise1RefHz = 1000
-        self.noise2RefHz = 1000
+        self.noise1RefHz = 100
+        self.noise2RefHz = 4000
         self.preTrialNoiseRefHz = 1000
-        self.preTrialNoiseLowFreq = 0
+        self.preTrialNoiseLowFreq = 20
         self.preTrialNoiseHighFreq = 8000
-        self.preTrialNoiseDur = 2#980
+        self.preTrialNoiseDur = 1980
         self.preTrialNoiseRamps = 10
-        self.preTrialNoiseSL = -200#40
+        self.preTrialNoiseSL = 0#40
         self.preTrialNoiseType = "Pink"
         self.preTrialNoiseChannel = "Both"
-        self.preTrialNoiseDiadISI = 10#500
+        self.preTrialNoiseDiadISI = 500
         self.noiseChannel = "Both"
 
       
