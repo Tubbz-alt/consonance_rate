@@ -50,7 +50,16 @@ if pyqtversion == 4:
 #     QtCore.Signal = QtCore.pyqtSignal
 #     QtCore.Slot = QtCore.pyqtSlot
 
+phonesCalFile = os.path.expanduser("~") +'/.config/consonance_rate/phonesCal.txt'
 
+if os.path.exists(os.path.expanduser("~") +'/.config/') == False:
+    os.mkdir(os.path.expanduser("~") +'/.config/')
+if os.path.exists(os.path.expanduser("~") +'/.config/consonance_rate/') == False:
+    os.mkdir(os.path.expanduser("~") +'/.config/consonance_rate/')
+if os.path.exists(phonesCalFile) == False:
+    fHandle = open(phonesCalFile, 'w')
+    fHandle.write("101")
+    fHandle.close()
 
 class mainWin(QMainWindow):
     def __init__(self, parent=None):
@@ -84,50 +93,30 @@ class mainWin(QMainWindow):
                                    196,
                                    207.65,
                                    220])
-        self.intervalsCents = np.array([200,
+        self.intervalsCents = np.array([600,
                                       
                                       
                                        700
                                       
                                        ])
-        self.nPracticeTrialsXStim = 1
-        self.nTrialsXStim = 2
-        self.nTrials = len(self.rootNotes)*len(self.intervalsCents)*(self.nTrialsXStim+self.nPracticeTrialsXStim)
-        print(self.nTrials)
-        practiceTrials = []
-        mainTrials = []
-        for rootNote in self.rootNotes:
-            for intervalCents in self.intervalsCents:
-                for n in range(self.nPracticeTrialsXStim):
-                    practiceTrials.append((rootNote, intervalCents))
-                for n in range(self.nTrialsXStim):
-                    mainTrials.append((rootNote, intervalCents))
 
-        random.shuffle(practiceTrials)
-        random.shuffle(mainTrials)
-        self.trialList = []
-        self.trialList.extend(practiceTrials)
-        self.trialList.extend(mainTrials)
-
-
-        
         self.diadDur = 1980
         self.diadRamps = 10
-        self.diadTotLev = 40
+        self.diadTotLev = np.array([40, 80])
         self.diadFilterType = "lowpass"
-        self.diadFilterCutoffs = (4000,)
+        self.diadFilterCutoffs = (2500,)
         self.diadLowHarm = 1
         self.diadHighHarm = 50
         self.diadNote1Chan = "Both"
         self.diadNote2Chan = "Both"
         self.fs = 48000
-        self.maxLevel = 100
+        self.maxLevel = self.getPhonesCal()
         self.noise1SL = -200
         self.noise1LowFreq = 0
         self.noise1HighFreq = 2000
         self.noise1Type = "Pink"
         self.noise2Type = "Pink"
-        self.noise2SL = 5#45
+        self.noise2SL = np.array([0, 40])
         self.noise2LowFreq = 4000
         self.noise2HighFreq = 8000
         self.noise1RefHz = 100
@@ -137,21 +126,71 @@ class mainWin(QMainWindow):
         self.preTrialNoiseHighFreq = 8000
         self.preTrialNoiseDur = 1980
         self.preTrialNoiseRamps = 10
-        self.preTrialNoiseSL = 0#40
+        self.preTrialNoiseSL = np.array([0, 40])
         self.preTrialNoiseType = "Pink"
         self.preTrialNoiseChannel = "Both"
         self.preTrialNoiseDiadISI = 500
         self.noiseChannel = "Both"
 
+        self.nPracticeTrialsXStim = 1
+        self.nTrialsXStim = 2
+        self.nTrials = len(self.rootNotes)*len(self.intervalsCents)*len(self.diadTotLev)*(self.nTrialsXStim+self.nPracticeTrialsXStim)
+        print(self.nTrials)
+        practiceTrials = []
+        mainTrials = []
+        for rootNote in self.rootNotes:
+            for intervalCents in self.intervalsCents:
+                for n in range(self.nPracticeTrialsXStim):
+                    practiceTrials.append((rootNote, intervalCents, "practice", self.diadTotLev[0], self.noise2SL[0], self.preTrialNoiseSL[0]))
+                for n in range(self.nTrialsXStim):
+                    mainTrials.append((rootNote, intervalCents, "main", self.diadTotLev[0], self.noise2SL[0], self.preTrialNoiseSL[0]))
+
+        random.shuffle(practiceTrials)
+        random.shuffle(mainTrials)
+
+        practiceTrials2 = []
+        mainTrials2 = []
+        for rootNote in self.rootNotes:
+            for intervalCents in self.intervalsCents:
+                for n in range(self.nPracticeTrialsXStim):
+                    practiceTrials2.append((rootNote, intervalCents, "practice", self.diadTotLev[1], self.noise2SL[1], self.preTrialNoiseSL[1]))
+                for n in range(self.nTrialsXStim):
+                    mainTrials2.append((rootNote, intervalCents, "main", self.diadTotLev[1], self.noise2SL[1], self.preTrialNoiseSL[1]))
+
+        random.shuffle(practiceTrials2)
+        random.shuffle(mainTrials2)
+
+        #root note
+        #interval cents
+        #practice or main
+        #dialTotLev
+        #noise2SL
+        #preTrialNoiseSL
+
+        
+        self.trialList = []
+        if random.choice([0,1]) == 0:
+            self.trialList.extend(practiceTrials)
+            self.trialList.extend(practiceTrials2)
+        else:
+            self.trialList.extend(practiceTrials2)
+            self.trialList.extend(practiceTrials)
+        if random.choice([0,1]) == 0:
+            self.trialList.extend(mainTrials)
+            self.trialList.extend(mainTrials2)
+        else:
+            self.trialList.extend(mainTrials2)
+            self.trialList.extend(mainTrials)
+
+        
       
 
-        #self.menubar = self.menuBar()
-        #self.fileMenu = self.menubar.addMenu(self.tr('&File'))
+        self.menubar = self.menuBar()
+        self.fileMenu = self.menubar.addMenu(self.tr('-'))
         
-        #self.editMenu = self.menubar.addMenu(self.tr('&Edit'))
-        #self.editListenerIDAction = QAction(self.tr('Listener ID'), self)
-        #self.editMenu.addAction(self.editListenerIDAction)
-        #self.editListenerIDAction.triggered.connect(self.onEditListenerID)
+        self.editPhonesAction = QAction(self.tr('Phones Calibration'), self)
+        self.fileMenu.addAction(self.editPhonesAction)
+        self.editPhonesAction.triggered.connect(self.onEditPhones)
 
         
         self.setupListenerButton = QPushButton(self.tr("Setup Listener"), self)
@@ -247,13 +286,26 @@ class mainWin(QMainWindow):
         self.statusButton.setText(self.tr("Running"))
         QApplication.processEvents()
 
+        #root note
+        rootNote = self.trialList[self.currentTrial-1][0]
+        #interval cents
+        intervalCents = self.trialList[self.currentTrial-1][1]
+        #practice or main
+        trialMode = self.trialList[self.currentTrial-1][2]
+        #dialTotLev
+        diadTotLev = self.trialList[self.currentTrial-1][3]
+        #noise2SL
+        noise2SL = self.trialList[self.currentTrial-1][4]
+        #preTrialNoiseSL
+        preTrialNoiseSL = self.trialList[self.currentTrial-1][5]
+
         try:
             intervalName = self.intervals_db["name"][self.intervals_db["cents"] == self.trialList[self.currentTrial-1][1]].values[0]
         except:
             intervalName = str(self.trialList[self.currentTrial-1][1])
         print(intervalName)
 
-        preTrialNoise = broadbandNoise(spectrumLevel=self.preTrialNoiseSL,
+        preTrialNoise = broadbandNoise(spectrumLevel=preTrialNoiseSL,
                                        duration=self.preTrialNoiseDur,
                                        ramp=self.preTrialNoiseRamps, channel=self.preTrialNoiseChannel,
                                        fs=self.fs, maxLevel=self.maxLevel)
@@ -262,11 +314,11 @@ class mainWin(QMainWindow):
 
         preTrialNoise = fir2Filter2(preTrialNoise, filterType="bandpass", nTaps=256, cutoffs=(self.preTrialNoiseLowFreq, self.preTrialNoiseHighFreq), transitionWidth=0.2, fs=self.fs)
             
-        diad = makeDiad(self.trialList[self.currentTrial-1][0], self.trialList[self.currentTrial-1][1],
+        diad = makeDiad(rootNote, intervalCents,
                        filterType=self.diadFilterType,
                        filterCutoffs=self.diadFilterCutoffs,
                        lowHarm=self.diadLowHarm, highHarm=self.diadHighHarm,
-                       diadTotLev=self.diadTotLev, duration=self.diadDur,
+                       diadTotLev=diadTotLev, duration=self.diadDur,
                        ramp=self.diadRamps, note1Channel=self.diadNote1Chan,
                        note2Channel=self.diadNote2Chan, fs=self.fs,
                        maxLevel=self.maxLevel)
@@ -283,7 +335,7 @@ class mainWin(QMainWindow):
         noise1 = noise1[0:diad.shape[0],:]
         noise1 = gate(self.diadRamps, noise1, self.fs)
         
-        noise2 = broadbandNoise(spectrumLevel=self.noise2SL,
+        noise2 = broadbandNoise(spectrumLevel=noise2SL,
                                 duration=self.diadDur,
                                 ramp=self.diadRamps*6, channel=self.noiseChannel,
                                 fs=self.fs, maxLevel=self.maxLevel)
@@ -311,16 +363,32 @@ class mainWin(QMainWindow):
             intervalName = self.intervals_db["name"][self.intervals_db["cents"] == self.trialList[self.currentTrial-2][1]].values[0]
         except:
             intervalName = str(self.trialList[self.currentTrial-2][1])
-        rootNote = str(self.trialList[self.currentTrial-2][0])
+        #rootNote = str(self.trialList[self.currentTrial-2][0])
 
-        if self.currentTrial-1 <= len(self.rootNotes)*len(self.intervalsCents)*self.nPracticeTrialsXStim:
-            trialMode = "practice"
-        else:
-            trialMode = "main"
+        #root note
+        rootNote = self.trialList[self.currentTrial-2][0]
+        #interval cents
+        intervalCents = self.trialList[self.currentTrial-2][1]
+        #practice or main
+        trialMode = self.trialList[self.currentTrial-2][2]
+        #dialTotLev
+        diadTotLev = self.trialList[self.currentTrial-2][3]
+        #noise2SL
+        noise2SL = self.trialList[self.currentTrial-2][4]
+        #preTrialNoiseSL
+        preTrialNoiseSL = self.trialList[self.currentTrial-2][5]
+
+        # if self.currentTrial-1 <= len(self.rootNotes)*len(self.intervalsCents)*self.nPracticeTrialsXStim:
+        #     trialMode = "practice"
+        # else:
+        #     trialMode = "main"
         self.thisPageFile.write(self.listenerID + ';')
-        self.thisPageFile.write(rootNote + ';')
+        self.thisPageFile.write(str(rootNote) + ';')
         self.thisPageFile.write(intervalName + ';')
+        self.thisPageFile.write(str(intervalCents) + ';')
         self.thisPageFile.write(trialMode + ';')
+        self.thisPageFile.write(str(diadTotLev) + ';')
+        #self.thisPageFile.write(str(noise2SL) + ';')
         self.thisPageFile.write(self.overallRatingSliderValue.text() + '\n')
         self.thisPageFile.flush()
         self.overallRatingSlider.setValue(0)
@@ -346,9 +414,28 @@ class mainWin(QMainWindow):
         if len(ftow) > 0:
             self.thisPagePath = ftow
             self.thisPageFile = open(self.thisPagePath, "a")
-            self.thisPageFile.write("listener;root_note;interval;trial_type;rating\n")
+            self.thisPageFile.write("listener;root_note;interval;intervalCents;trial_type;totLev;rating\n")
 
             self.setupListenerButton.hide()
             self.statusButton.show()
         else:
             return
+
+    def getPhonesCal(self):
+        fHandle = open(phonesCalFile, 'r')
+        currCal = float(fHandle.readline().strip())
+        fHandle.close()
+
+        return currCal
+
+    def writePhonesCal(self, val):
+        fHandle = open(phonesCalFile, 'w')
+        fHandle.write(str(val))
+        fHandle.close()
+
+
+    def onEditPhones(self):
+        currCal = self.getPhonesCal()
+        val, ok = QInputDialog.getDouble(self, self.tr('Phones Calibration'), self.tr('Phones Max. Level'), currCal)
+        self.writePhonesCal(val)
+        self.maxLevel = val
