@@ -132,18 +132,20 @@ class mainWin(QMainWindow):
         self.preTrialNoiseDiadISI = 500
         self.noiseChannel = "Both"
 
-        self.nPracticeTrialsXStim = 1
+        self.nPracticeTrialsXStim = 4
         self.nTrialsXStim = 2
-        self.nTrials = len(self.rootNotes)*len(self.intervalsCents)*len(self.diadTotLev)*(self.nTrialsXStim+self.nPracticeTrialsXStim)
+        self.nTrials = len(self.rootNotes)*len(self.intervalsCents)*len(self.diadTotLev)*(self.nTrialsXStim) + self.nPracticeTrialsXStim*len(self.intervalsCents)*len(self.diadTotLev)
         print(self.nTrials)
         practiceTrials = []
         mainTrials = []
         for rootNote in self.rootNotes:
             for intervalCents in self.intervalsCents:
-                for n in range(self.nPracticeTrialsXStim):
-                    practiceTrials.append((rootNote, intervalCents, "practice", self.diadTotLev[0], self.noise2SL[0], self.preTrialNoiseSL[0]))
                 for n in range(self.nTrialsXStim):
                     mainTrials.append((rootNote, intervalCents, "main", self.diadTotLev[0], self.noise2SL[0], self.preTrialNoiseSL[0]))
+
+        for intervalCents in self.intervalsCents:
+            for n in range(self.nPracticeTrialsXStim):
+                practiceTrials.append((random.choice(self.rootNotes), intervalCents, "practice", self.diadTotLev[0], self.noise2SL[0], self.preTrialNoiseSL[0]))
 
         random.shuffle(practiceTrials)
         random.shuffle(mainTrials)
@@ -152,10 +154,12 @@ class mainWin(QMainWindow):
         mainTrials2 = []
         for rootNote in self.rootNotes:
             for intervalCents in self.intervalsCents:
-                for n in range(self.nPracticeTrialsXStim):
-                    practiceTrials2.append((rootNote, intervalCents, "practice", self.diadTotLev[1], self.noise2SL[1], self.preTrialNoiseSL[1]))
                 for n in range(self.nTrialsXStim):
                     mainTrials2.append((rootNote, intervalCents, "main", self.diadTotLev[1], self.noise2SL[1], self.preTrialNoiseSL[1]))
+
+        for intervalCents in self.intervalsCents:
+            for n in range(self.nPracticeTrialsXStim):
+                practiceTrials2.append((random.choice(self.rootNotes), intervalCents, "practice", self.diadTotLev[1], self.noise2SL[1], self.preTrialNoiseSL[1]))
 
         random.shuffle(practiceTrials2)
         random.shuffle(mainTrials2)
@@ -187,7 +191,7 @@ class mainWin(QMainWindow):
 
         
       
-
+        print(len(self.trialList))
         self.menubar = self.menuBar()
         self.fileMenu = self.menubar.addMenu(self.tr('-'))
         
