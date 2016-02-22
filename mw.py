@@ -167,6 +167,9 @@ class mainWin(QMainWindow):
         #noise2SL
         #preTrialNoiseSL
 
+        #remove some practice trials
+        #practiceTrials = practiceTrials[0:4]
+        #practiceTrials2 = practiceTrials2[0:4]
         
         self.trialList = []
         if random.choice([0,1]) == 0:
